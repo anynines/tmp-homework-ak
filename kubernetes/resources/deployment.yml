@@ -1,0 +1,76 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: go-app-deployment
+  labels:
+    app: go-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go-app 
+  template:
+    metadata:
+      labels:
+        app: go-app
+    spec:
+      containers:
+      - name: go-app
+        imagePullPolicy: Always 
+        image: andikeraj/my-repo:go-app
+        ports:
+        - containerPort: 8080
+          name: "go-app"
+
+---
+
+apiVersion: v1 
+kind: Service
+metadata:
+  name: go-service
+spec: 
+  selector:
+    app.kubernetes.io/name: go-app
+  ports: 
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
+---
+
+apiVersion: apps/v1 
+kind: Deployment
+metadata: 
+  name: database-deployment
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-1
+  template:
+    metadata: 
+      labels:
+        app: db-1
+    spec:
+      containers:
+      - name: db-1 
+        image: postgres:latest
+        ports:
+        - containerPort: 5432
+          name: "postgres"
+        env:
+        - name: POSTGRES_DB
+          value: postgres
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_PASSWORD
+          value: mysecretpassword
+        resources: 
+          limits:
+            memory: 2Gi
+            cpu: "2"
+
+
+
+  
